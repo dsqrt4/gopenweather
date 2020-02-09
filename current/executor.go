@@ -12,10 +12,14 @@ import (
 type Executor func(query url.URL) (io.Reader, error)
 
 var DefaultExecutor Executor = func(query url.URL) (data io.Reader, err error) {
-	request := &http.Request{URL: &query, Method: http.MethodGet}
-	request.Header.Add("accept", "application/json")
+	request, err := http.NewRequest(http.MethodGet, query.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("accept", "application/json")
 
-	r, err := (http.Client{}).Do(request)
+	c := http.Client{}
+	r, err := c.Do(request)
 	if err != nil {
 		return nil, err
 	}
